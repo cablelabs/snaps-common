@@ -16,7 +16,7 @@ import unittest
 
 from mock import patch
 
-from snaps_common.utils import ssh_utils
+from snaps_common.ssh import ssh_utils
 
 logging.basicConfig(level=logging.DEBUG)
 

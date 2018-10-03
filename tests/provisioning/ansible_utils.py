@@ -17,7 +17,7 @@ import unittest
 import pkg_resources
 from mock import patch
 
-from snaps_common.utils import ansible_utils
+from snaps_common.provisioning import ansible_utils
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -32,7 +32,7 @@ class AnsibleUtilsTests(unittest.TestCase):
 
     def setUp(self):
         self.pb_loc = pkg_resources.resource_filename(
-            'tests.utils.playbooks', 'simple_playbook.yaml')
+            'tests.provisioning.playbooks', 'simple_playbook.yaml')
 
     @patch('ansible.executor.playbook_executor.PlaybookExecutor.run',
            return_value=0)

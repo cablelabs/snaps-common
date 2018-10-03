@@ -1,6 +1,6 @@
 import unittest
 
-from snaps_common.utils.proxy import ProxySettings, ProxySettingsError
+from snaps_common.ssh.proxy import ProxySettings, ProxySettingsError
 
 
 class ProxySettingsUnitTests(unittest.TestCase):

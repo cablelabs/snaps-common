@@ -17,7 +17,7 @@ import unittest
 import shutil
 import uuid
 
-from snaps_common.utils import file_utils
+from snaps_common.file import file_utils
 
 __author__ = 'spisarski'
 
