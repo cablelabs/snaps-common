@@ -57,7 +57,8 @@ def apply_playbook(playbook_path, hosts_inv=None, host_user=None,
         raise AnsibleException(
             'Requested playbook not found - ' + playbook_path)
     else:
-        logger.info('Applying playbook [%s]', playbook_path)
+        logger.info('Applying playbook [%s] with variables - %s',
+                    playbook_path, variables)
 
     pk_file_path = None
     if ssh_priv_key_file_path:
