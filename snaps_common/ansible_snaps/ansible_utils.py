@@ -29,7 +29,7 @@ logger = logging.getLogger('ansible_utils')
 
 def apply_playbook(playbook_path, hosts_inv=None, host_user=None,
                    ssh_priv_key_file_path=None, password=None, variables=None,
-                   proxy_setting=None):
+                   proxy_setting=None, inventory_cfg=None):
     """
     Executes an Ansible playbook to the given host
     :param playbook_path: the (relative) path to the Ansible playbook
@@ -48,6 +48,8 @@ def apply_playbook(playbook_path, hosts_inv=None, host_user=None,
     :param variables: a dictionary containing any substitution variables needed
                       by the Jinga 2 templates
     :param proxy_setting: instance of os_credentials.ProxySettings class
+    :param inventory_cfg: dict specifying host/groups where the key is group
+                          name and the value is a list of hosts
     :raises AnsibleException when the return code from the Ansible library is
             not 0
     :return: the return code from the Ansible library only when 0.
@@ -76,12 +78,17 @@ def apply_playbook(playbook_path, hosts_inv=None, host_user=None,
     ansible.constants.HOST_KEY_CHECKING = False
 
     loader = DataLoader()
-    inventory = InventoryManager(loader=loader)
-    if hosts_inv:
+    if inventory_cfg:
+        connection = 'ssh'
+        inventory = __create_custom_inventory(loader, inventory_cfg)
+    elif hosts_inv:
+        inventory = InventoryManager(loader=loader)
         for host in hosts_inv:
             inventory.add_host(host=host, group='ungrouped')
         connection = 'ssh'
     else:
+        loader = DataLoader()
+        inventory = InventoryManager(loader=loader)
         connection = 'local'
 
     variable_manager = VariableManager(loader=loader, inventory=inventory)
@@ -128,6 +135,17 @@ def apply_playbook(playbook_path, hosts_inv=None, host_user=None,
                 playbook_path, ret_val, connection))
 
     return ret_val
+
+
+def __create_custom_inventory(loader, inventory_cfg):
+    inventory = InventoryManager(loader=loader)
+    for key, values in inventory_cfg.items():
+        if key == '':
+            key = 'ungrouped'
+        if isinstance(values, list):
+            for value in values:
+                inventory.add_host(host=value, group=key)
+    return inventory
 
 
 class AnsibleException(Exception):
