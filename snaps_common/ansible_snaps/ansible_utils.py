@@ -142,9 +142,10 @@ def __create_custom_inventory(loader, inventory_cfg):
     for key, values in inventory_cfg.items():
         if key == '':
             key = 'ungrouped'
+        group = inventory.add_group(key)
         if isinstance(values, list):
             for value in values:
-                inventory.add_host(host=value, group=key)
+                inventory.add_host(host=value, group=group)
     return inventory
 
 
