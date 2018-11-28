@@ -29,7 +29,7 @@ logger = logging.getLogger('ansible_utils')
 
 def apply_playbook(playbook_path, hosts_inv=None, host_user=None,
                    ssh_priv_key_file_path=None, password=None, variables=None,
-                   proxy_setting=None, inventory_file=None):
+                   proxy_setting=None, inventory_file=None, become_user=None):
     """
     Executes an Ansible playbook to the given host
     :param playbook_path: the (relative) path to the Ansible playbook
@@ -107,13 +107,19 @@ def apply_playbook(playbook_path, hosts_inv=None, host_user=None,
                     'become', 'become_method', 'become_user', 'verbosity',
                     'check', 'timeout', 'diff'])
 
+    become = None
+    become_method = None
+    if become_user:
+        become = 'yes'
+        become_method = 'sudo'
+
     ansible_opts = options(
         listtags=False, listtasks=False, listhosts=False, syntax=False,
         connection=connection, module_path=None, forks=100,
         remote_user=host_user, private_key_file=pk_file_path,
-        ssh_common_args=None, ssh_extra_args=ssh_extra_args, become=None,
-        become_method=None, become_user=None, verbosity=11111, check=False,
-        timeout=30, diff=None)
+        ssh_common_args=None, ssh_extra_args=ssh_extra_args, become=become,
+        become_method=become_method, become_user=become_user, verbosity=11111,
+        check=False, timeout=30, diff=None)
 
     logger.debug('Setting up Ansible Playbook Executor for playbook - ' +
                  playbook_path)
