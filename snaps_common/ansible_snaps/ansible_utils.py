@@ -48,8 +48,10 @@ def apply_playbook(playbook_path, hosts_inv=None, host_user=None,
     :param variables: a dictionary containing any substitution variables needed
                       by the Jinga 2 templates
     :param proxy_setting: instance of os_credentials.ProxySettings class
-    :param inventory_cfg: dict specifying host/groups where the key is group
-                          name and the value is a list of hosts
+    :param inventory_file: an inventory file that will supercede the hosts_inv
+    :param become_user: the username on this host that the playbook must run
+                        as. When used, the become_method wil be sudo and
+                        become will be 'yes'
     :raises AnsibleException when the return code from the Ansible library is
             not 0
     :return: the return code from the Ansible library only when 0.
