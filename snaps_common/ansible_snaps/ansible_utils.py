@@ -29,7 +29,7 @@ logger = logging.getLogger('ansible_utils')
 
 def apply_playbook(playbook_path, hosts_inv=None, host_user=None,
                    ssh_priv_key_file_path=None, password=None, variables=None,
-                   proxy_setting=None):
+                   proxy_setting=None, inventory_file=None, become_user=None):
     """
     Executes an Ansible playbook to the given host
     :param playbook_path: the (relative) path to the Ansible playbook
@@ -48,6 +48,10 @@ def apply_playbook(playbook_path, hosts_inv=None, host_user=None,
     :param variables: a dictionary containing any substitution variables needed
                       by the Jinga 2 templates
     :param proxy_setting: instance of os_credentials.ProxySettings class
+    :param inventory_file: an inventory file that will supercede the hosts_inv
+    :param become_user: the username on this host that the playbook must run
+                        as. When used, the become_method wil be sudo and
+                        become will be 'yes'
     :raises AnsibleException when the return code from the Ansible library is
             not 0
     :return: the return code from the Ansible library only when 0.
@@ -76,12 +80,17 @@ def apply_playbook(playbook_path, hosts_inv=None, host_user=None,
     ansible.constants.HOST_KEY_CHECKING = False
 
     loader = DataLoader()
-    inventory = InventoryManager(loader=loader)
-    if hosts_inv:
+    if inventory_file:
+        inventory = InventoryManager(loader=loader, sources=inventory_file)
+        connection = 'ssh'
+    elif hosts_inv:
+        inventory = InventoryManager(loader=loader)
         for host in hosts_inv:
             inventory.add_host(host=host, group='ungrouped')
         connection = 'ssh'
     else:
+        loader = DataLoader()
+        inventory = InventoryManager(loader=loader)
         connection = 'local'
 
     variable_manager = VariableManager(loader=loader, inventory=inventory)
@@ -100,13 +109,19 @@ def apply_playbook(playbook_path, hosts_inv=None, host_user=None,
                     'become', 'become_method', 'become_user', 'verbosity',
                     'check', 'timeout', 'diff'])
 
+    become = None
+    become_method = None
+    if become_user:
+        become = 'yes'
+        become_method = 'sudo'
+
     ansible_opts = options(
         listtags=False, listtasks=False, listhosts=False, syntax=False,
         connection=connection, module_path=None, forks=100,
         remote_user=host_user, private_key_file=pk_file_path,
-        ssh_common_args=None, ssh_extra_args=ssh_extra_args, become=None,
-        become_method=None, become_user=None, verbosity=11111, check=False,
-        timeout=30, diff=None)
+        ssh_common_args=None, ssh_extra_args=ssh_extra_args, become=become,
+        become_method=become_method, become_user=become_user, verbosity=11111,
+        check=False, timeout=30, diff=None)
 
     logger.debug('Setting up Ansible Playbook Executor for playbook - ' +
                  playbook_path)
