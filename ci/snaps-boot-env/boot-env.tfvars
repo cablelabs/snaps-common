@@ -1,5 +1,7 @@
 # Values for jobs using the snaps-boot-env image
 sudo_user = "ubuntu"
+region = "us-west-2"
+availability_zone = "us-west-2b"
 netmask = "255.255.255.0"
 build_ip_prfx = "10.0.0"
 build_ip_bits = "24"
