@@ -40,9 +40,7 @@
             name:
               - python-boto3
 
-        - name: Get Ubuntu cloud image
-#          get_url:
-#            url: https://cloud-images.ubuntu.com/releases/16.04/release/ubuntu-16.04-server-cloudimg-amd64-disk1.img
+        - name: Get Ubuntu cloud image from S3 bucket {{ image_s3_bucket }}
           aws_s3:
             aws_access_key: "{{ aws_access_key }}"
             aws_secret_key: "{{ aws_secret_key }}"
@@ -50,6 +48,14 @@
             object: ubuntu-16.04-server-cloudimg-amd64-disk1.img
             dest: /tmp/ubuntu.img
             mode: get
+          register: get_img
+          ignore_errors: yes
+
+        - name: Download Ubuntu cloud image
+          get_url:
+            url: https://cloud-images.ubuntu.com/releases/16.04/release/ubuntu-16.04-server-cloudimg-amd64-disk1.img
+            dest: /tmp/ubuntu.img
+          when: get_img is failed
 
         - name: Convert cloud image to /tmp/{{ vm_name }}-ubuntu.qcow2 as qcow2
           command: "qemu-img convert -O qcow2 /tmp/ubuntu.img {{ images_dir }}/{{ vm_name }}-ubuntu.qcow2"
@@ -104,8 +110,13 @@
         type: "{{ vm_type }}"
         nets: "{{ networks }}"
 
-    - name: Set autostart and start {{ vm_name }}
+# TODO - FIXME - Autostart doesn't seem to always work!!!
+    - name: Set autostart {{ vm_name }}
       virt:
         name: "{{ vm_name }}"
         autostart: yes
         state: running
+
+# TODO - FIXME - Hack for above!!!
+    - name: Set autostart {{ vm_name }}
+      command: "virsh autostart {{ vm_name }}"

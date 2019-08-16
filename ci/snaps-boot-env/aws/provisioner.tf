@@ -55,7 +55,7 @@ resource "null_resource" "snaps-ci-get-host-priv-key" {
   }
 }
 
-# Call ansible scripts to setup KVM
+# Call ansible scripts to squid proxy server on host VM
 resource "null_resource" "snaps-ci-proxy-setup" {
   depends_on = [null_resource.snaps-ci-get-host-pub-key]
 
@@ -191,10 +191,10 @@ resource "null_resource" "snaps-ci-authorize-build-to-libvirthost" {
   depends_on = [null_resource.snaps-ci-gen-build-key]
   provisioner "remote-exec" {
     inline = [
-      "scp -o StrictHostKeyChecking=no ${var.sudo_user}@${var.build_ip_prfx}.${var.build_ip_suffix}:~/.ssh/id_rsa.pub ~/build_pub_key",
+      "scp -o StrictHostKeyChecking=no ${var.build_ip_prfx}.${var.build_ip_suffix}:~/.ssh/id_rsa.pub ~/build_pub_key",
       "touch ~/.ssh/authorized_keys",
+      "chmod 600 ~/.ssh/authorized_keys",
       "cat ~/build_pub_key >> ~/.ssh/authorized_keys",
-      "chmod 600 ~/.ssh/authorized_keys"
     ]
   }
   connection {
@@ -204,3 +204,24 @@ resource "null_resource" "snaps-ci-authorize-build-to-libvirthost" {
     private_key = file(var.private_key_file)
   }
 }
+
+# Cleanup this hosts key from the build server
+resource "null_resource" "snaps-ci-cleanup-build-auth-key" {
+  depends_on = [null_resource.snaps-ci-authorize-build-to-libvirthost]
+
+  # Install KVM dependencies
+  provisioner "local-exec" {
+    command = <<EOT
+${var.ANSIBLE_CMD} -u ${var.sudo_user} \
+-i ${var.build_ip_prfx}.${var.build_ip_suffix}, \
+${var.CLEANUP_KEYS} \
+--ssh-common-args="\
+-o ProxyCommand='ssh ${var.sudo_user}@${aws_instance.snaps-ci-host.public_ip} nc ${var.build_ip_prfx}.${var.build_ip_suffix} 22' \
+-o StrictHostKeyChecking=no" \
+--extra-vars "\
+value='${aws_key_pair.snaps-ci-pk.public_key}'
+"\
+EOT
+  }
+}
+

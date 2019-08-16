@@ -22,25 +22,25 @@ variable "build_id" {}
 variable "public_key_file" {default = "~/.ssh/id_rsa.pub"}
 variable "private_key_file" {default = "~/.ssh/id_rsa"}
 
-# Optional Variables for Cloud
-variable "sudo_user" {default = "ubuntu"}
-variable "region" {default = "us-west-2"}
-variable "availability_zone" {default = "us-west-2b"}
+variable "vm_host_pub_key" {default = "~/.ssh/id_rsa.pub"}
+variable "vm_host_priv_key" {default = "~/.ssh/id_rsa"}
 
-variable "ami" {default = "ami-06f2f779464715dc5"}
-
-// Set wait_for_fulfillment to true in order to obtain instance attributes
-variable "instance_type" {default = "m5.metal"}
-variable "volume_size" {default = 50}
+variable "base_ami" {default = "ami-06f2f779464715dc5"}
 
 # Playbook Constants
 variable "ANSIBLE_CMD" {default = "export ANSIBLE_HOST_KEY_CHECKING=False; ansible-playbook"}
 variable "SETUP_HOST_PROXY" {default = "../playbooks/setup_proxy.yaml"}
+variable "CLEANUP_KEYS" {default = "../playbooks/cleanup_keys.yaml"}
 variable "SETUP_KVM_DEPENDENCIES" {default = "../playbooks/kvm/dependencies.yaml"}
 variable "SETUP_KVM_NETWORKS" {default = "../playbooks/kvm/networks.yaml"}
 variable "SETUP_KVM_SERVERS" {default = "../playbooks/kvm/servers.yaml"}
 
 # Variables for snaps-boot-env images with defaults to be found in boot-env.tfvars
+variable "sudo_user" {}
+variable "region" {}
+variable "availability_zone" {}
+variable "instance_type" {}
+variable "volume_size" {}
 variable "netmask" {}
 variable "build_ip_prfx" {}
 variable "build_ip_bits" {}
@@ -78,6 +78,3 @@ variable "proxy_port" {}
 variable "ngcacher_proxy_port" {}
 variable "pxe_pass" {}
 variable "hosts_yaml_path" {}
-
-variable "vm_host_pub_key" {default = "~/.ssh/id_rsa.pub"}
-variable "vm_host_priv_key" {default = "~/.ssh/id_rsa"}

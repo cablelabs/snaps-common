@@ -13,7 +13,7 @@
 
 # AWS EC2 Instances
 resource "aws_instance" "snaps-ci-host" {
-  ami = var.ami
+  ami = var.base_ami
   instance_type = var.instance_type
   key_name = aws_key_pair.snaps-ci-pk.key_name
   availability_zone = var.availability_zone

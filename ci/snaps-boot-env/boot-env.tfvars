@@ -1,7 +1,13 @@
 # Values for jobs using the snaps-boot-env image
-sudo_user = "ubuntu"
+boot_ami = "ami-01198e621d797f724"
 region = "us-west-2"
 availability_zone = "us-west-2b"
+instance_type = "m5.metal"
+volume_size = 50
+initial_boot_timeout = "1800"
+std_boot_timeout = "120"
+sudo_user = "ubuntu"
+
 netmask = "255.255.255.0"
 build_ip_prfx = "10.0.0"
 build_ip_bits = "24"
@@ -39,9 +45,3 @@ proxy_port = "3128"
 ngcacher_proxy_port = "3142"
 pxe_pass = "password"
 hosts_yaml_path = "/tmp/hosts.yaml"
-
-vm_host_pub_key = "~/.ssh/id_rsa.pub"
-vm_host_priv_key = "~/.ssh/id_rsa"
-
-initial_boot_timeout = "1800"
-std_boot_timeout = "120"
