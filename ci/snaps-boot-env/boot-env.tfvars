@@ -1,5 +1,5 @@
 # Values for jobs using the snaps-boot-env image
-boot_ami = "ami-01198e621d797f724"
+boot_ami = "ami-0900639e9bc68b25c"
 region = "us-west-2"
 availability_zone = "us-west-2b"
 instance_type = "m5.metal"
