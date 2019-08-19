@@ -48,23 +48,17 @@
         done
 
   tasks:
+    - name: Stop unattended-upgrades
+      become: yes
+      command: systemctl stop unattended-upgrades
+
     - name: Disable unattended-upgrades
       become: yes
-      become_method: sudo
-      become_user: root
-      service:
-        name: unattended-upgrades
-        enabled: no
+      command: systemctl disable unattended-upgrades
 
     - name: Remove unattended-upgrades
       become: yes
-      become_method: sudo
-      become_user: root
-      apt:
-        name: unattended-upgrades
-        state: absent
-        autoclean: yes
-        autoremove: yes
+      command: apt remove unattended-upgrades -y
       register: out_upgrades
       until: out_upgrades is not failed
       retries: 30
