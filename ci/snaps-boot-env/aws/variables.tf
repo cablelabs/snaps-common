@@ -30,7 +30,7 @@ variable "base_ami" {default = "ami-06f2f779464715dc5"}
 # Playbook Constants
 variable "ANSIBLE_CMD" {default = "export ANSIBLE_HOST_KEY_CHECKING=False; ansible-playbook"}
 variable "SETUP_HOST_PROXY" {default = "../playbooks/setup_proxy.yaml"}
-variable "CLEANUP_KEYS" {default = "../playbooks/cleanup_keys.yaml"}
+variable "CLEANUP" {default = "../playbooks/cleanup.yaml"}
 variable "SETUP_KVM_DEPENDENCIES" {default = "../playbooks/kvm/dependencies.yaml"}
 variable "SETUP_KVM_NETWORKS" {default = "../playbooks/kvm/networks.yaml"}
 variable "SETUP_KVM_SERVERS" {default = "../playbooks/kvm/servers.yaml"}

@@ -24,11 +24,12 @@ locals {
 }
 
 # Call ensure SSH key has correct permissions
-resource "null_resource" "snaps-ci-remote-key-gen" {
+resource "null_resource" "snaps-ci-remote-setup" {
   depends_on = [null_resource.snaps-ci-pk-setup]
   provisioner "remote-exec" {
     inline = [
       "ssh-keygen -t rsa -N '' -f ${var.vm_host_priv_key}",
+      "sudo apt remove unattended-upgrades -y",
     ]
   }
   connection {
@@ -41,7 +42,7 @@ resource "null_resource" "snaps-ci-remote-key-gen" {
 
 # Call ensure SSH key has correct permissions
 resource "null_resource" "snaps-ci-get-host-pub-key" {
-  depends_on = [null_resource.snaps-ci-remote-key-gen]
+  depends_on = [null_resource.snaps-ci-remote-setup]
   provisioner "local-exec" {
     command = "scp -o StrictHostKeyChecking=no ${var.sudo_user}@${aws_instance.snaps-ci-host.public_ip}:~/.ssh/id_rsa.pub ${local.remote_pub_key_file}"
   }
@@ -49,7 +50,7 @@ resource "null_resource" "snaps-ci-get-host-pub-key" {
 
 # Call ensure SSH key has correct permissions
 resource "null_resource" "snaps-ci-get-host-priv-key" {
-  depends_on = [null_resource.snaps-ci-remote-key-gen]
+  depends_on = [null_resource.snaps-ci-remote-setup]
   provisioner "local-exec" {
     command = "scp -o StrictHostKeyChecking=no ${var.sudo_user}@${aws_instance.snaps-ci-host.public_ip}:~/.ssh/id_rsa ${local.remote_priv_key_file}"
   }
@@ -214,14 +215,13 @@ resource "null_resource" "snaps-ci-cleanup-build-auth-key" {
     command = <<EOT
 ${var.ANSIBLE_CMD} -u ${var.sudo_user} \
 -i ${var.build_ip_prfx}.${var.build_ip_suffix}, \
-${var.CLEANUP_KEYS} \
+${var.CLEANUP} \
 --ssh-common-args="\
 -o ProxyCommand='ssh ${var.sudo_user}@${aws_instance.snaps-ci-host.public_ip} nc ${var.build_ip_prfx}.${var.build_ip_suffix} 22' \
 -o StrictHostKeyChecking=no" \
 --extra-vars "\
-value='${aws_key_pair.snaps-ci-pk.public_key}'
+pub_key_to_clean='${aws_key_pair.snaps-ci-pk.public_key}'
 "\
 EOT
   }
 }
-
