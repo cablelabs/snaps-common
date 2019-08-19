@@ -17,25 +17,44 @@
 
   gather_facts: no
 
+  pre_tasks:
+    - name: Wait for dpkg lock
+      raw: |
+        while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
+          sleep 5
+        done
+
+    - name: Wait for apt lock
+      raw: |
+        while sudo fuser /var/lib/apt/lists/lock >/dev/null 2>&1 ; do
+          sleep 5
+        done
+
+    - name: Wait for unattended-upgrades
+      raw: |
+        if [ -f /var/log/unattended-upgrades/unattended-upgrades.log ]; then
+          while sudo fuser /var/log/unattended-upgrades/unattended-upgrades.log >/dev/null 2>&1 ; do
+            sleep 5
+          done
+        fi
+
+    - name: Wait for python
+      raw: |
+        while true; do
+          if hash python &>/dev/null; then
+            break;
+          fi
+          sleep 5
+        done
+
   tasks:
-    - name: Wait for apt
+    - name: Disable unattended-upgrades
       become: yes
       become_method: sudo
       become_user: root
-      shell: |
-        while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
-          sleep 1
-        done
-        while sudo fuser /var/lib/apt/lists/lock >/dev/null 2>&1 ; do
-          sleep 1
-        done
-        if [ -f /var/log/unattended-upgrades/unattended-upgrades.log ]; then
-          while sudo fuser /var/log/unattended-upgrades/unattended-upgrades.log >/dev/null 2>&1 ; do
-            sleep 1
-          done
-        fi
-      async: 900
-      poll: 10
+      service:
+        name: unattended-upgrades
+        enabled: no
 
     - name: Remove unattended-upgrades
       become: yes
