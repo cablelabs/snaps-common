@@ -18,6 +18,9 @@
   gather_facts: no
 
   pre_tasks:
+    - name: Wait for a min
+      raw: sleep 60
+
     - name: Wait for dpkg lock
       raw: |
         while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
@@ -38,35 +41,40 @@
           done
         fi
 
-    - name: Wait for python
-      raw: |
-        while true; do
-          if hash python &>/dev/null; then
-            break;
-          fi
-          sleep 5
-        done
+    - name: apt install python
+      raw: sudo apt update
+
+    - name: apt install python
+      raw: sudo apt install python -y
 
   tasks:
-    - name: Stop unattended-upgrades
-      become: yes
-      command: systemctl stop unattended-upgrades
-
-    - name: Disable unattended-upgrades
-      become: yes
-      command: systemctl disable unattended-upgrades
-
-    - name: Remove unattended-upgrades
-      become: yes
-      command: apt remove unattended-upgrades -y
-      register: out_upgrades
-      until: out_upgrades is not failed
-      retries: 30
-      delay: 5
+    - name: Wait for /var/lib/cloud/instances/iid-local01/boot-finished
+      wait_for:
+        path:  /var/lib/cloud/instances/iid-local01/boot-finished
+        state: present
+        timeout: 600
 
     - name: Remove line with any value of {{ pub_key_to_clean }} from ~/.ssh/authorized_keys
       shell: "grep -v '{{ pub_key_to_clean }}' ~/.ssh/authorized_keys > ~/tmp.key && mv ~/tmp.key ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
-      register: out_purge
-      until: out_purge is not failed
+
+    - name: Disable unattended-upgrades
+      become: yes
+      become_method: sudo
+      become_user: root
+      service:
+        name: unattended-upgrades
+        enabled: no
+
+    - name: Remove unattended-upgrades
+      become: yes
+      become_method: sudo
+      become_user: root
+      apt:
+        name: unattended-upgrades
+        state: absent
+        autoclean: yes
+        autoremove: yes
+      register: out_upgrades
+      until: out_upgrades is not failed
       retries: 30
       delay: 5

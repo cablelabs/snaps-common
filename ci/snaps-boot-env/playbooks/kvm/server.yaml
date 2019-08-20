@@ -40,22 +40,10 @@
             name:
               - python-boto3
 
-        - name: Get Ubuntu cloud image from S3 bucket {{ image_s3_bucket }}
-          aws_s3:
-            aws_access_key: "{{ aws_access_key }}"
-            aws_secret_key: "{{ aws_secret_key }}"
-            bucket: "{{ image_s3_bucket }}"
-            object: ubuntu-16.04-server-cloudimg-amd64-disk1.img
-            dest: /tmp/ubuntu.img
-            mode: get
-          register: get_img
-          ignore_errors: yes
-
         - name: Download Ubuntu cloud image
           get_url:
             url: https://cloud-images.ubuntu.com/releases/16.04/release/ubuntu-16.04-server-cloudimg-amd64-disk1.img
             dest: /tmp/ubuntu.img
-          when: get_img is failed
 
         - name: Convert cloud image to /tmp/{{ vm_name }}-ubuntu.qcow2 as qcow2
           command: "qemu-img convert -O qcow2 /tmp/ubuntu.img {{ images_dir }}/{{ vm_name }}-ubuntu.qcow2"

@@ -130,9 +130,6 @@ ${var.ANSIBLE_CMD} -u ${var.sudo_user} \
 ${var.SETUP_KVM_SERVERS} \
 --key-file ${var.private_key_file} \
 --extra-vars "\
-aws_access_key=${var.access_key}
-aws_secret_key=${var.secret_key}
-image_s3_bucket=snaps-ci
 pxe_img=/var/lib/libvirt/images/libvirt-pxe.qcow2
 target_user=${var.sudo_user}
 build_net_name=${var.build_net_name}
