@@ -193,6 +193,7 @@ resource "null_resource" "snaps-ci-authorize-build-to-libvirthost" {
       "touch ~/.ssh/authorized_keys",
       "chmod 600 ~/.ssh/authorized_keys",
       "cat ~/build_pub_key >> ~/.ssh/authorized_keys",
+      "sleep 120",
     ]
   }
   connection {

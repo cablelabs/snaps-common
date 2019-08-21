@@ -18,9 +18,6 @@
   gather_facts: no
 
   pre_tasks:
-    - name: Wait for a min
-      raw: sleep 60
-
     - name: Wait for dpkg lock
       raw: |
         while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1 ; do
@@ -41,12 +38,6 @@
           done
         fi
 
-    - name: apt install python
-      raw: sudo apt update
-
-    - name: apt install python
-      raw: sudo apt install python -y
-
   tasks:
     - name: Wait for /var/lib/cloud/instances/iid-local01/boot-finished
       wait_for:
@@ -55,7 +46,10 @@
         timeout: 600
 
     - name: Remove line with any value of {{ pub_key_to_clean }} from ~/.ssh/authorized_keys
-      shell: "grep -v '{{ pub_key_to_clean }}' ~/.ssh/authorized_keys > ~/tmp.key && mv ~/tmp.key ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+      authorized_key:
+        user: "{{ ansible_user }}"
+        key: "{{ pub_key_to_clean }}"
+        state: absent
 
     - name: Disable unattended-upgrades
       become: yes
