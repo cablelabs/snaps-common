@@ -32,6 +32,7 @@
   vars:
     vm_name: "{{ build_vm_name }}"
     vm_type: ubuntu
+    image_url: "{{ build_img_url }}"
     srvr_password: "{{ build_password }}"
     public_keys:
     - "{{ lookup('file', '{{ build_public_key_file }}') }}"
@@ -69,6 +70,8 @@
   vars:
     vm_name: "{{ node_1_name }}"
     vm_type: pxe
+    num_cpus: "{{ node_1_cpus | default('2') }}"
+    memory_bytes: "{{ node_1_memory | default('8388608') }}"
     networks:
     - name: "{{ priv_net_name }}"
       mac: "{{ node_1_mac_1 }}"
@@ -83,6 +86,8 @@
   vars:
     vm_name: "{{ node_2_name }}"
     vm_type: pxe
+    num_cpus: "{{ node_2_cpus | default('2') }}"
+    memory_bytes: "{{ node_2_memory | default('8388608') }}"
     networks:
     - name: "{{ priv_net_name }}"
       mac: "{{ node_2_mac_1 }}"
@@ -97,6 +102,8 @@
   vars:
     vm_name: "{{ node_3_name }}"
     vm_type: pxe
+    num_cpus: "{{ node_3_cpus | default('2') }}"
+    memory_bytes: "{{ node_3_memory | default('8388608') }}"
     networks:
     - name: "{{ priv_net_name }}"
       mac: "{{ node_3_mac_1 }}"

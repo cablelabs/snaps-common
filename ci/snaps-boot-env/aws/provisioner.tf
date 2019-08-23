@@ -130,7 +130,7 @@ ${var.ANSIBLE_CMD} -u ${var.sudo_user} \
 ${var.SETUP_KVM_SERVERS} \
 --key-file ${var.private_key_file} \
 --extra-vars "\
-pxe_img=/var/lib/libvirt/images/libvirt-pxe.qcow2
+build_img_url=${var.build_server_image_url }
 target_user=${var.sudo_user}
 build_net_name=${var.build_net_name}
 priv_net_name=${var.priv_net_name}
@@ -155,6 +155,12 @@ build_mac_3=${var.build_mac_3}
 node_1_name=${var.node_1_name}
 node_2_name=${var.node_2_name}
 node_3_name=${var.node_3_name}
+node_1_cpus=${var.node_1_cpus}
+node_2_cpus=${var.node_2_cpus}
+node_3_cpus=${var.node_3_cpus}
+node_1_memory=${var.node_1_memory}
+node_2_memory=${var.node_2_memory}
+node_3_memory=${var.node_3_memory}
 node_1_mac_1=${var.node_1_mac_1}
 node_1_mac_2=${var.node_1_mac_2}
 node_1_mac_3=${var.node_1_mac_3}
@@ -193,7 +199,7 @@ resource "null_resource" "snaps-ci-authorize-build-to-libvirthost" {
       "touch ~/.ssh/authorized_keys",
       "chmod 600 ~/.ssh/authorized_keys",
       "cat ~/build_pub_key >> ~/.ssh/authorized_keys",
-      "sleep 120",
+      "sleep ${var.pause_sec}",
     ]
   }
   connection {

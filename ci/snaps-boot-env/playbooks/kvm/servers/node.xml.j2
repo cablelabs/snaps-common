@@ -18,8 +18,8 @@
 -->
 <domain type='kvm'>
   <name>{{ name }}</name>d
-  <memory>{{ memory | default('4194304') }}</memory>
-  <vcpu>{{ cpus | default('2') }}</vcpu>
+  <memory>{{ memory_bytes | default('4194304') }}</memory>
+  <vcpu>{{ num_cpus | default('2') }}</vcpu>
 
   <os>
     <type>hvm</type>

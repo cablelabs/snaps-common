@@ -5,7 +5,7 @@ availability_zone = "us-west-2b"
 instance_type = "m5.metal"
 volume_size = 50
 initial_boot_timeout = "1800"
-std_boot_timeout = "120"
+std_boot_timeout = "300"
 sudo_user = "ubuntu"
 
 netmask = "255.255.255.0"

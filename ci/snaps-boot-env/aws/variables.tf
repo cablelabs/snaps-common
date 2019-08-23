@@ -19,6 +19,12 @@ variable "git_pass" {}
 variable "build_id" {}
 
 # Variables that are recommended to change as they won't work in all envs
+variable "node_1_cpus" {default = "2"}
+variable "node_2_cpus" {default = "2"}
+variable "node_3_cpus" {default = "2"}
+variable "node_1_memory" {default = "4194304"}
+variable "node_2_memory" {default = "4194304"}
+variable "node_3_memory" {default = "4194304"}
 variable "public_key_file" {default = "~/.ssh/id_rsa.pub"}
 variable "private_key_file" {default = "~/.ssh/id_rsa"}
 
@@ -26,6 +32,9 @@ variable "vm_host_pub_key" {default = "~/.ssh/id_rsa.pub"}
 variable "vm_host_priv_key" {default = "~/.ssh/id_rsa"}
 
 variable "base_ami" {default = "ami-06f2f779464715dc5"}
+variable "build_server_image_url" {default = "https://cloud-images.ubuntu.com/releases/16.04/release/ubuntu-16.04-server-cloudimg-amd64-disk1.img"}
+
+variable "pause_sec" {default = "30"}
 
 # Playbook Constants
 variable "ANSIBLE_CMD" {default = "export ANSIBLE_HOST_KEY_CHECKING=False; ansible-playbook"}
