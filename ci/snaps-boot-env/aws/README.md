@@ -14,7 +14,7 @@ export TF_CLI_CONFIG_FILE="{snaps-config dir}/aws/terraform_rc"
 terraform init
 terraform apply -auto-approve \
 -var-file='{snaps-config dir}/aws/snaps-ci.tfvars' \
--var-file='{snaps-common dir}/ci/aws/boot-env.tfvars' \
+-var-file='{snaps-common dir}/ci/snaps-boot-env/boot-env.tfvars' \
 -var build_id={some unique readable value}
 ```
 
@@ -23,6 +23,6 @@ Always perform cleanup after completion by running the following command from th
 ```bash
 terraform destroy -auto-approve \
 -var-file='{snaps-config dir}/aws/snaps-ci.tfvars' \
--var-file='{snaps-common dir}/ci/aws/boot-env.tfvars' \
+-var-file='{snaps-common dir}/ci/snaps-boot-env/boot-env.tfvars' \
 -var build_id={some unique readable value}
 ```
