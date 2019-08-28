@@ -28,8 +28,6 @@ resource "azurerm_resource_group" "snaps-ci" {
 resource "azurerm_virtual_network" "snaps-ci-net" {
   name = "snaps-ci-net-${var.build_id}"
   address_space = ["10.1.0.0/16"]
-//  location = var.location
-//  resource_group_name = var.resource_group_name
   location = azurerm_resource_group.snaps-ci.location
   resource_group_name = azurerm_resource_group.snaps-ci.name
 }
@@ -37,15 +35,12 @@ resource "azurerm_virtual_network" "snaps-ci-net" {
 resource "azurerm_subnet" "snaps-ci-subnet" {
   name = "snaps-ci-subnet-${var.build_id}"
   virtual_network_name = azurerm_virtual_network.snaps-ci-net.name
-  //  resource_group_name = var.resource_group_name
   resource_group_name = azurerm_resource_group.snaps-ci.name
   address_prefix = "10.1.0.0/24"
 }
 
 resource "azurerm_public_ip" "snaps-ci-pub-ip" {
   name = "snaps-ci-${var.build_id}"
-  //  location = var.location
-  //  resource_group_name = var.resource_group_name
   location = azurerm_resource_group.snaps-ci.location
   resource_group_name = azurerm_resource_group.snaps-ci.name
   allocation_method = "Static"
@@ -53,8 +48,6 @@ resource "azurerm_public_ip" "snaps-ci-pub-ip" {
 
 resource "azurerm_network_interface" "snaps-ci-nic" {
   name                = "snaps-ci-${var.build_id}-nic"
-  //  location = var.location
-  //  resource_group_name = var.resource_group_name
   location = azurerm_resource_group.snaps-ci.location
   resource_group_name = azurerm_resource_group.snaps-ci.name
 
@@ -67,10 +60,7 @@ resource "azurerm_network_interface" "snaps-ci-nic" {
 }
 
 resource "azurerm_virtual_machine" "snaps-ci-host" {
-//  delete_os_disk_on_termination = true
   name = "snaps-ci-host-${var.build_id}"
-  //  location = var.location
-  //  resource_group_name = var.resource_group_name
   location = azurerm_resource_group.snaps-ci.location
   resource_group_name = azurerm_resource_group.snaps-ci.name
   network_interface_ids = [azurerm_network_interface.snaps-ci-nic.id]
@@ -109,19 +99,19 @@ resource "azurerm_virtual_machine" "snaps-ci-host" {
     Name = "snaps-ci-build-${var.build_id}"
   }
 
-//  # Used to ensure host is really up before attempting to apply ansible playbooks
-//  provisioner "remote-exec" {
-//    inline = [
-//      "sudo apt install python -y"
-//    ]
-//  }
-//
-//  # Remote connection info for remote-exec
-//  connection {
-//    host = azurerm_public_ip.snaps-ci-pub-ip.ip_address
-//    type     = "ssh"
-//    user     = var.sudo_user
-//    private_key = file(var.private_key_file)
-//    timeout = "15m"
-//  }
+  # Used to ensure host is really up before attempting to apply ansible playbooks
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt install python -y"
+    ]
+  }
+
+  # Remote connection info for remote-exec
+  connection {
+    host = azurerm_public_ip.snaps-ci-pub-ip.ip_address
+    type     = "ssh"
+    user     = var.sudo_user
+    private_key = file(var.private_key_file)
+    timeout = "15m"
+  }
 }
