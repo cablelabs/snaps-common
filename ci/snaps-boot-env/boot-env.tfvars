@@ -1,13 +1,24 @@
 # Values for jobs using the snaps-boot-env image
+
+# EC2
 boot_ami = "ami-05c869d7d9ea4ae51"
 region = "us-west-2"
 availability_zone = "us-west-2b"
 instance_type = "m5.metal"
+
+# Azure
+vm_size = "Standard_D16s_v3"
+location = "westus"
+shared_resource_group_name = "snaps-boot"
+built_image_id = "/subscriptions/ffc5d93a-8a85-4c42-8c33-7d0d762e852d/resourceGroups/snaps-boot/providers/Microsoft.Compute/images/snaps-ci-host-spisarski-snaps-common-boot-env-image-20190827092645"
+
+# VM Host Settings
 volume_size = 50
 initial_boot_timeout = "1800"
 std_boot_timeout = "300"
 sudo_user = "ubuntu"
 
+# VM Settings
 netmask = "255.255.255.0"
 build_ip_prfx = "10.0.0"
 build_ip_bits = "24"
