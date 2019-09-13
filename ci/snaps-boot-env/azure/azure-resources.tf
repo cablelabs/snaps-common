@@ -102,7 +102,10 @@ resource "azurerm_virtual_machine" "snaps-ci-host" {
   # Used to ensure host is really up before attempting to apply ansible playbooks
   provisioner "remote-exec" {
     inline = [
-      "sudo apt install python -y"
+      "sudo apt update",
+      "sudo apt install python2.7 -y",
+      "sudo rm /usr/bin/python",
+      "sudo ln /usr/bin/python2.7 /usr/bin/python",
     ]
   }
 
