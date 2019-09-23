@@ -190,6 +190,11 @@ EOT
   }
 }
 
+resource "random_integer" "snaps-common-ip-prfx" {
+  min = 101
+  max = 254
+}
+
 # Inject build server SSH key into libvirt host
 resource "null_resource" "snaps-ci-authorize-build-to-libvirthost" {
   depends_on = [null_resource.snaps-ci-gen-build-key]
@@ -199,6 +204,7 @@ resource "null_resource" "snaps-ci-authorize-build-to-libvirthost" {
       "touch ~/.ssh/authorized_keys",
       "chmod 600 ~/.ssh/authorized_keys",
       "cat ~/build_pub_key >> ~/.ssh/authorized_keys",
+      "ssh -o StrictHostKeyChecking=no ${var.sudo_user}@${var.build_ip_prfx}.${var.build_ip_suffix} 'sudo ip addr add ${var.build_ip_prfx}.${random_integer.snaps-common-ip-prfx.result}/24 dev ens3'",
       "sleep ${var.pause_sec}",
     ]
   }
@@ -218,10 +224,10 @@ resource "null_resource" "snaps-ci-cleanup-build-auth-key" {
   provisioner "local-exec" {
     command = <<EOT
 ${var.ANSIBLE_CMD} -u ${var.sudo_user} \
--i ${var.build_ip_prfx}.${var.build_ip_suffix}, \
+-i ${var.build_ip_prfx}.${random_integer.snaps-common-ip-prfx.result}, \
 ${var.CLEANUP} \
 --ssh-common-args="\
--o ProxyCommand='ssh ${var.sudo_user}@${azurerm_public_ip.snaps-ci-pub-ip.ip_address} nc ${var.build_ip_prfx}.${var.build_ip_suffix} 22' \
+-o ProxyCommand='ssh ${var.sudo_user}@${azurerm_public_ip.snaps-ci-pub-ip.ip_address} nc ${var.build_ip_prfx}.${random_integer.snaps-common-ip-prfx.result} 22' \
 -o StrictHostKeyChecking=no" \
 --extra-vars "\
 pub_key_to_clean='${file(var.public_key_file)}'
