@@ -21,6 +21,8 @@ from ansible.executor.playbook_executor import PlaybookExecutor
 from ansible.inventory.manager import InventoryManager
 from ansible.parsing.dataloader import DataLoader
 from ansible.vars.manager import VariableManager
+from ansible import context
+from ansible.module_utils.common.collections import ImmutableDict
 
 __author__ = 'spisarski'
 
@@ -93,21 +95,9 @@ def apply_playbook(playbook_path, hosts_inv=None, host_user=None,
         inventory = InventoryManager(loader=loader)
         connection = 'local'
 
-    variable_manager = VariableManager(loader=loader, inventory=inventory)
-
-    if variables:
-        variable_manager.extra_vars = variables
-
     ssh_extra_args = None
     if proxy_setting and proxy_setting.ssh_proxy_cmd:
         ssh_extra_args = '-o ProxyCommand=\'%s\'' % proxy_setting.ssh_proxy_cmd
-
-    options = namedtuple(
-        'Options', ['listtags', 'listtasks', 'listhosts', 'syntax',
-                    'connection', 'module_path', 'forks', 'remote_user',
-                    'private_key_file', 'ssh_common_args', 'ssh_extra_args',
-                    'become', 'become_method', 'become_user', 'verbosity',
-                    'check', 'timeout', 'diff'])
 
     become = None
     become_method = None
@@ -115,22 +105,23 @@ def apply_playbook(playbook_path, hosts_inv=None, host_user=None,
         become = 'yes'
         become_method = 'sudo'
 
-    ansible_opts = options(
-        listtags=False, listtasks=False, listhosts=False, syntax=False,
-        connection=connection, module_path=None, forks=100,
-        remote_user=host_user, private_key_file=pk_file_path,
-        ssh_common_args=None, ssh_extra_args=ssh_extra_args, become=become,
-        become_method=become_method, become_user=become_user, verbosity=11111,
-        check=False, timeout=30, diff=None)
+    context.CLIARGS = ImmutableDict(tags={},listtags=False, listtasks=False, listhosts=False, syntax=False,
+                      connection=connection, module_path=None, forks=100, remote_user=host_user,
+                      private_key_file=pk_file_path, ssh_common_args=None, ssh_extra_args=ssh_extra_args,
+                      become=become, become_method=become_method, become_user=become_user, verbosity=11111,
+                      check=False, timeout=30, diff=None, start_at_task=None, extra_vars=[variables])
+
+
+    variable_manager = VariableManager(loader=loader, inventory=inventory)
 
     logger.debug('Setting up Ansible Playbook Executor for playbook - ' +
                  playbook_path)
+
     executor = PlaybookExecutor(
         playbooks=[playbook_path],
         inventory=inventory,
         variable_manager=variable_manager,
         loader=loader,
-        options=ansible_opts,
         passwords=passwords)
 
     logger.debug('Executing Ansible Playbook - ' + playbook_path)
